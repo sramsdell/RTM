@@ -3,6 +3,7 @@ import random, math, pygame
 SIZE = (400,400)
 BLACK = (0,0,0)
 RED = (255,0,0)
+PINK = (255,100,100)
 WHITE = (255, 255, 255)
 OFF_SET = 50
 MAX_POINTS = 2000
@@ -82,8 +83,8 @@ def plot(x, p = False):
 
 def spawn_points(count, ui, speed = 2):
     if (count % speed == 0):
-        #creates a point and truckates float to int for better GUI handling
         hoz = SIZE[0] - OFF_SET
+        #random.random is python's uniform 
         rand = int(plot(random.random()))
         vert = rand + OFF_SET
         for point in ui.get_points():

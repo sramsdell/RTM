@@ -1,3 +1,4 @@
+#4/6/17
 import sys
 from stats_2 import *
 
@@ -46,7 +47,34 @@ class MasterState:
             pygame.quit()
             sys.exit()
             return False
+        
+    def update(self):
+        self.N = ui.get_N()
+        self.total = ui.get_total()
+        self.ave = ui.get_ave()
 
+        self.font = pygame.font.SysFont("fixedsys", 18)
+        
+        self._label = self.font.render("Distribution of Bus wait times " +
+                                       "for half hour ave. arrivals",
+                                         1, RED)
+        
+        self.text = self.font.render("X scale = 10 minutes",
+                                     1, BLACK)
+        
+        self.text2 = self.font.render("Calculated Ave. wait time = "
+                                      + str(self.ave) + " minutes",
+                                     1, BLACK)
+        
+        self.text3 = self.font.render("Sample Size =  "
+                                      + str(self.N),
+                                     1, BLACK)
+        
+        self.text4 = self.font.render("Toggle View press T",
+                                     1, BLACK)
+        
+        self.text5 = self.font.render("Y scale = 10 samples",
+                                     1, BLACK)
 
 class Hist_1(MasterState):
     def __init__(self,screen):
@@ -54,33 +82,11 @@ class Hist_1(MasterState):
         
         self.count = 120
         self.tick = 10
-        self.font = pygame.font.SysFont("fixedsys", 18)
-        self.text = self.font.render("X scale = " + str(self.tick) + " minutes",
-                                     1, BLACK)
-        self.text5 = self.font.render("Y scale = " + str(self.tick) + " samples",
-                                     1, BLACK)
 
         self.N = 0
         self.total = 0
         self.ave = 0
-        
-    def update(self):
-        
-        self.N = ui.get_N()
-        self.total = ui.get_total()
-        self.ave = ui.get_ave()
-        
-        self._label = self.font.render("Distribution of Bus wait times",
-                                         1, RED)
-        self.text2 = self.font.render("Calculated Ave. wait time = "
-                                      + str(self.ave) + " minutes",
-                                     1, BLACK)
-        self.text3 = self.font.render("Sample Size =  "
-                                      + str(self.N),
-                                     1, BLACK)
-        self.text4 = self.font.render("Toggle View press T",
-                                     1, BLACK)
-        
+
     def render(self,screen):
         self.count += 1
         screen.fill(WHITE)
@@ -137,8 +143,12 @@ class Hist_1(MasterState):
 
                     
         for i in range(ui.get_dist_len()):
-            #draw
-            pygame.draw.rect(screen, RED,
+            #draw bars
+            if (i % 2 == 0):
+                color = RED
+            else:
+                color = PINK
+            pygame.draw.rect(screen, color,
                      [(i * scale) + OFF_SET,
                       SIZE[0] - OFF_SET,
                       scale,
@@ -160,52 +170,49 @@ class Hist_2(MasterState):
 
         self.count = 120
         self.tick = 10
-        self.font = pygame.font.SysFont("fixedsys", 18)
-        self.text = self.font.render("scale = " + str(self.tick) + " minutes",
-                                     1, BLACK)
+
         self.N = 0
         self.total = 0
         self.ave = 0
-        
-    def update(self):
-        
-        self.N = ui.get_N()
-        self.total = ui.get_total()
-        self.ave = ui.get_ave()
-        
-        self._label = self.font.render("Distribution of Bus wait times",
-                                         1, RED)
-        self.text2 = self.font.render("Calculated Ave. wait time = "
-                                      + str(self.ave) + " minutes",
-                                     1, BLACK)
-        self.text3 = self.font.render("Sample Size =  "
-                                      + str(self.N),
-                                     1, BLACK)
-        self.text4 = self.font.render("Toggle View press T",
-                                     1, BLACK)
-        
+ 
     def render(self,screen):
         self.count += 1
         screen.fill(WHITE)
+        screen.blit(self.text,(250,120))
         screen.blit(self._label,(20,20))
-        screen.blit(self.text,(SIZE[0]/2-100,375))
         screen.blit(self.text2,(20,50))
         screen.blit(self.text3,(20,70))
         screen.blit(self.text4,(250,70))
-        #vert lines
-        for i in range((SIZE[0] - 50) // self.tick):
+        screen.blit(self.text5,(250, 140))
+
+        #vert ticks
+        for i in range((SIZE[0] - OFF_SET) // self.tick):
             pygame.draw.rect(screen, BLACK,
                              [OFF_SET + (self.tick * i),
                               SIZE[0] - OFF_SET,
-                              1,
+                              2,
                               10])
-
+        #Horz ticks
+        for i in range((SIZE[0] - (OFF_SET * 3) + self.tick) // self.tick):
+            pygame.draw.rect(screen, BLACK,
+                             [OFF_SET,
+                              OFF_SET * 2 + (self.tick * i),
+                              -8,
+                              2])
+        #Vert line
+        pygame.draw.rect(screen, BLACK,
+                         [OFF_SET - 1,
+                          (OFF_SET * 2),
+                          2,
+                          SIZE[0] - OFF_SET * 3])
+        
         #horz line
         pygame.draw.rect(screen, BLACK,
                          [OFF_SET,
                           SIZE[0] - OFF_SET,
                           SIZE[0],
                           2])
+  
         
         if (ui.get_N() < MAX_POINTS):
             temp = spawn_points(self.count, ui)
@@ -232,7 +239,8 @@ class IntroState(MasterState):
     def __init__(self, screen):
         MasterState.__init__(self,screen)
         self.intro_font = pygame.font.SysFont("fixedsys", 24)
-        self.intro_text = self.intro_font.render("Bus wait time simulation",
+        self.intro_text = self.intro_font.render("Bus wait time simulation " +
+                                                 "for half hour ave. arrival",
                                                  1, BLACK)
         self.intro_text2 = self.intro_font.render("Space to Start",
                                                   1, BLACK)
@@ -242,7 +250,7 @@ class IntroState(MasterState):
 
     def render(self,screen):
         screen.fill(RED)
-        screen.blit(self.intro_text,(SIZE[0]/2-100,SIZE[1]/2))
+        screen.blit(self.intro_text,(20,SIZE[1]/2))
         screen.blit(self.intro_text2,(SIZE[0]/2-70,SIZE[1]/2 + 30))
 
     def event_handler(self,events):
